@@ -1,0 +1,47 @@
+{
+  "name": "teacherboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ask a question and an AI teacher explains it out loud while drawing on a whiteboard, in sync with its voice. (Korean)",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "ai",
+    "education",
+    "whiteboard",
+    "gemini",
+    "elevenlabs",
+    "kids",
+    "tts",
+    "korean"
+  ],
+  "scripts": {
+    "dev": "concurrently \"tsx watch src/server/index.ts\" \"vite\"",
+    "build": "vite build",
+    "start": "tsx src/server/index.ts",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/static": "^10.1.12",
+    "@fastify/websocket": "^11.3.7",
+    "@google/genai": "^3.6.1",
+    "dotenv": "^18.0.10",
+    "fastify": "^5.12.8",
+    "tsx": "^4.23.15",
+    "ws": "^8.23.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.6",
+    "@types/ws": "^8.18.2",
+    "concurrently": "^10.0.7",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
+  }
+}

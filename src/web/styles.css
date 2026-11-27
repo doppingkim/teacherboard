@@ -1,0 +1,1380 @@
+/* 티처보드 — 보드: 테마 A 클래식 화이트보드(시안 whiteboard-style-v2.html)
+   주변 화면: 밤하늘 스케치북 놀이터(시안 c-background.html 3번 + ui-direction-v3.html C) */
+
+:root {
+  /* 보드 위에 남겨 둘 높이. 로고는 말풍선 줄의 왼쪽 빈자리에 겹쳐 앉으므로 따로 줄을 두지 않는다
+     (2026-11-22 아이패드 실사용: 로고 줄 + 말풍선 줄이 따로 있어 칠판이 너무 아래로 쏠렸다) */
+  --top: 0.5rem;
+  /* 말풍선이 로고와 겹치지 않게 양옆에 비워 둘 폭(로고 왼쪽 여백 1rem + 로고 폭 약 9.3rem(주아체가 실린 뒤) + 사이 여백).
+     9.6rem일 때는 주아체가 실리면 로고 끝(약 164px)이 긴 말풍선 시작(156px)을 8px 덮었다(2026-11-23 측정) */
+  --logo-room: 10.6rem;
+  /* 노치·다이내믹 아일랜드 쪽 safe-area(가로 휴대폰). 로고가 이만큼 안쪽으로 밀린다 */
+  --safe-x: max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  /* 홈 막대 자리(아이폰·아이패드 아래). 질문창이 여기까지 내려가지 않게 */
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  /* 칠판 양옆 스위치 자리(왼쪽 설명 수준, 오른쪽 선생님) */
+  --side: 7.4rem;
+  /* 자막 말풍선 자리(헤더 아래, 보드 바로 위) */
+  --below: 6rem;
+  --sub-pad: 0.85rem; /* 말풍선 아래 여백(꼬리 자리) */
+  /* 자막 아래 질문창(마이크 알약 + 글자 질문): 상자 높이와 그 둘레 여백까지 합친 자리 */
+  --ask-h: 3.4rem;
+  /* 칠판 아래 여백(--ask-gap) + 질문창 + 아래 여백 */
+  --ask-gap: 1.3rem;
+  --ask: 5.5rem;
+  --ink-black: #23272b;
+  --ink-blue: #1f5fd1;
+  --ink-green: #1f9a57;
+  --ink-red: #d63b3b;
+  /* 스케치북 놀이터 */
+  --night: #343a52; /* 밤하늘 배경 rgb(52,58,82) — 바꾸지 않는다 */
+  --ink: #2b2b3a;
+  --shadow: #14172a;
+  /* 장식 색(손글씨 장식·로고 둘레). 컨트롤 색은 아래 역할 토큰만 쓴다 */
+  --yellow: #ffd84d;
+  --mint: #a8edd2;
+  --coral: #ff8a7a;
+
+  /* ── 글꼴 역할(C1, 2026-11-23) ──────────────────────────────────────────
+     칠판 글씨는 손글씨(Hi Melody, 사용자 결정). 화면 글씨는 모두 둥근 주아체(Jua) 한 벌:
+     획이 굵고 둥글며 글자 모양이 교과서 고딕에 가까워 유아·초등 저학년이 읽기 쉽고, 로고·스위치가 이미 쓰던 글꼴이다.
+     굵은 고딕(Pretendard)은 뺐다(버튼만 다른 세계처럼 보였다). 주아체는 굵기가 하나라(400) 굵게를 주지 않는다(가짜 굵기 방지). */
+  --font-board: 'Hi Melody', cursive;
+  --font-board-en: 'Patrick Hand', 'Hi Melody', cursive; /* 영어 화면의 판서(:root.lang-en) */
+  --font-round: 'Jua', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-round); /* 화면 제목·말풍선·들은 말 */
+  --font-control: var(--font-round); /* 버튼·스위치·마이크 칩 */
+  --font-input: var(--font-round); /* 입력칸(16px 이상: iOS가 확대하지 않게) */
+  /* 예전 이름(다른 화면 조각이 쓰던 것): 역할 글꼴로 이어 둔다 */
+  --hand: var(--font-board);
+  --ui: var(--font-control);
+
+  /* ── 색 역할(C3, 2026-11-23) ────────────────────────────────────────────
+     색에 뜻을 하나씩만: 주 행동(묻기: 물어보기·말로 물어볼래?·시작) / 선택됨(스위치에서 고른 것·켜진 마이크·열린 ▾)
+     / 경고(마이크 연결 안 됨) / 중립(그 밖의 카드·칩). 글자는 모두 --ink(대비 4.5:1 이상, tests/web/visualTokens.test.ts). */
+  --c-primary: #5fd3a6;
+  --c-primary-hover: #7adcb5;
+  --c-on-primary: #2b2b3a;
+  --c-selected: #ffd84d;
+  --c-on-selected: #2b2b3a;
+  --c-warn: #ff8a7a;
+  --c-on-warn: #2b2b3a;
+  --c-neutral: #f3efe4;
+  --c-on-neutral: #2b2b3a;
+  --c-on-neutral-muted: #5c584f;
+  --c-surface: #ffffff;
+  --c-on-surface: #2b2b3a;
+  --c-placeholder: #6b665c;
+  /* 밤하늘 위 스위치 트랙(반투명 흰색)과 고르지 않은 글자 */
+  --c-night-track-alpha: 0.12;
+  --c-night-track: rgba(255, 255, 255, 0.12);
+  --c-night-line: rgba(255, 255, 255, 0.22);
+  --c-on-night: #d6dbef;
+  --c-focus: #ffffff;
+}
+
+/* 영어 화면: 판서는 영어 손글씨(Patrick Hand). 화면 글씨는 주아체 그대로(영문도 둥글게 나온다). */
+:root.lang-en {
+  --font-board: var(--font-board-en);
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-control);
+  -webkit-tap-highlight-color: transparent;
+}
+html {
+  background-color: var(--night);
+}
+
+/* 밤하늘 남색 + 흰 점 모눈(16px) + 칠판 쪽 은은한 빛. 프로필 화면도 같은 배경. */
+body,
+.overlay {
+  background-color: var(--night);
+  background-image:
+    radial-gradient(70% 60% at 50% 42%, rgba(255, 255, 255, 0.08), transparent 70%),
+    radial-gradient(rgba(255, 255, 255, 0.1) 1.1px, transparent 1.5px);
+  background-size: auto, 16px 16px;
+}
+
+/* 손글씨 장식(✦ ✿ 〰 ★): 칠판 양옆 기둥(.side) 안, 스위치 위·아래 = 칠판 네 모서리 높이에만 둔다(ui.ts).
+   기둥이 없는 세로 화면과 키 낮은 휴대폰 가로에서는 숨는다(아래 미디어 쿼리). */
+.side > .doodle {
+  flex: none;
+  font: 400 2rem/1 var(--font-board);
+  opacity: 0.9;
+  pointer-events: none;
+  user-select: none;
+}
+.doodle.d1 { color: var(--coral); }
+.doodle.d2 { color: #5bc7a0; }
+.doodle.d3 { color: #7aa7ff; }
+.doodle.d4 { color: var(--yellow); }
+
+#app {
+  /* 보드 전체(틀 + 받침대) 폭. 틀 높이 ≈ 0.571·폭, 받침대 ≈ 0.011·폭 → 0.6으로 여유 있게 나눈다.
+     로고 줄·자막·질문창 자리를 빼고 남은 높이에 맞춰 줄어든다(16:9 유지). 오른쪽 그림자 자리도 남긴다. */
+  --bw: min(calc(100vw - 2 * var(--side)), calc((100vh - var(--top) - var(--below) - var(--ask) - var(--safe-b)) / 0.6));
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  padding-top: var(--top);
+  padding-bottom: var(--safe-b);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+@supports (height: 100dvh) {
+  #app {
+    --bw: min(calc(100vw - 2 * var(--side)), calc((100dvh - var(--top) - var(--below) - var(--ask) - var(--safe-b)) / 0.6));
+  }
+}
+
+.board {
+  width: var(--bw);
+  flex: none;
+}
+
+/* 실사 화이트보드 사진(assets/whiteboard.webp, 1151×689): 알루미늄 틀·모서리 마개·받침대(지우개)까지 사진이다.
+   판서 면(.surface)은 사진 속 흰 면 자리에 정확히 겹친다(16:9). 받침대는 흰 면 아래(틀 밖)에 있고, 예전 사진에서 흰 면 아래쪽을
+   차지하던 세운 마커 세 자루는 지웠다(판서 둘째 정리 줄이 마커 위에 쓰였다 — 쓰는 마커는 펜 커서가 대신한다).
+   흰 면 안에 남은 것은 네 모서리 마개(판서 좌표 약 50×44)뿐이고, 배치 칸은 그 안쪽(x 48·y 24~)에서 시작한다. */
+/* 그림자는 filter: drop-shadow 대신 사진 뒤 상자의 box-shadow로: 사파리는 판서가 바뀔 때마다 drop-shadow를 다시 계산해
+   그리는 속도가 절반이 됐다(2026-11-22 WebKit 측정 20 → 41fps). */
+.board .frame {
+  position: relative;
+  aspect-ratio: 1151 / 689;
+}
+.board .frame::before {
+  content: '';
+  position: absolute;
+  left: 0.6%;
+  right: 0.6%;
+  top: 1%;
+  bottom: 3.6%;
+  border-radius: 1.6% / 2.6%;
+  box-shadow: 0 calc(var(--bw) * 0.01) calc(var(--bw) * 0.024) rgba(5, 8, 20, 0.55);
+  pointer-events: none;
+}
+.board .photo {
+  position: absolute;
+  inset: 0;
+  background: url('./assets/whiteboard.webp') center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+.board .surface {
+  position: absolute;
+  left: 3.194%;
+  top: 4.79%;
+  width: 94.21%;
+  height: 88.53%;
+  overflow: hidden;
+}
+
+/* 네 층: 다 그린 판서(마커 필터를 한 번만 계산해 굳힘) / 그리는 중 판서(자기 영역만 필터)
+   / 지금 쓰는 획 하나(그 획 영역만 매 프레임 필터) / 마커 펜·지우개.
+   각자 합성 층으로 두어, 펜이 움직이거나 획이 자라도 다른 층의 필터를 다시 계산하지 않게 한다. */
+.board svg.ink-layer,
+.board svg.live-layer,
+.board svg.active-layer,
+.board svg.pen-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.board svg text {
+  font-family: var(--font-board);
+}
+/* 프로필을 고른 뒤 초점이 머무는 곳(자판이 뜨지 않게). 누를 수 있는 것이 아니라 테두리는 그리지 않는다 */
+.board:focus {
+  outline: none;
+}
+
+.board .ink,
+.board .ink-live {
+  opacity: 0.93;
+}
+
+.board .ink path,
+.board .ink-live path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 마커 펜 스프라이트: 끝이 선을 따라가고, 뚜껑·띠는 지금 획 색 */
+.board .pen {
+  pointer-events: none;
+}
+.board .pen-col,
+.board .pen-nib {
+  fill: var(--ink-black);
+}
+
+/* 자막 말풍선: 칠판 아래, 꼬리가 칠판을 가리킨다. 높이를 고정해 두어 문장이 바뀌어도 보드가 움직이지 않는다 */
+.subtitle {
+  position: relative;
+  box-sizing: border-box;
+  flex: none;
+  width: 92vw;
+  height: var(--below);
+  padding-bottom: var(--sub-pad);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* 칠판 바로 위에 붙는다 */
+}
+.subtitle > span {
+  box-sizing: border-box;
+  /* 로고 자리(+ safe-area로 밀린 만큼) 양옆을 비운다. 5px: 바깥 테두리(2.5px × 2) */
+  max-width: min(100%, calc(100vw - 2 * (var(--logo-room) + var(--safe-x)) - 5px));
+  max-height: 100%; /* 자리를 넘치지 않게 — 넘치면 질문창과 겹친다 */
+  /* 위아래 여백은 흰 테두리로 둔다: overflow:hidden은 안쪽 여백까지 보여 줘서, 여백이면 둘째 줄 아래로 셋째 줄 윗부분이 비쳤다
+     (QA 2026-11-22, 사파리). 검은 테두리는 바깥 그림자 고리로 그린다. */
+  padding: 0 1.1rem;
+  text-align: center;
+  font: 400 clamp(1.05rem, 1.75vw, 1.4rem) / 1.2 var(--font-display);
+  color: var(--c-on-surface);
+  background: var(--c-surface);
+  border: solid var(--c-surface);
+  border-width: 0.3rem 0 0.4rem;
+  border-radius: 16px;
+  box-shadow: 0 0 0 2.5px var(--ink), 3px 3px 0 2.5px var(--shadow);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+/* 꼬리는 상자 밖으로 나가야 해서(상자는 overflow:hidden) 자막 줄에 단다 — 말풍선이 가운데라 위치가 맞는다 */
+.subtitle::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--sub-pad) - 8px); /* 검은 고리가 상자 바깥 2.5px에 있다 */
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-right: 2.5px solid var(--ink);
+  border-bottom: 2.5px solid var(--ink);
+  transform: translateX(-50%) rotate(45deg);
+}
+.subtitle > span:empty {
+  visibility: hidden;
+}
+/* 칠판 가운데 생각 중 카드: 마커로 쓴 듯한 문구 + 통통 튀는 점, 문구가 바뀔 때 살짝 떠오른다 */
+.board .thinking-card {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  padding: 0 8%;
+  text-align: center;
+  font: 400 calc(var(--bw) * 0.034) / 1.2 var(--hand);
+  -webkit-text-stroke: 0.03em currentColor;
+  color: #4a5a8a;
+  pointer-events: none;
+}
+.board .thinking-card[hidden] {
+  display: none;
+}
+.board .thinking-card.swap .thinking-text {
+  animation: think-in 0.45s ease-out;
+}
+.board .thinking-card .dots {
+  display: inline-flex;
+  gap: 0.18em;
+}
+.board .thinking-card .dots i {
+  width: 0.28em;
+  height: 0.28em;
+  border-radius: 50%;
+  background: currentColor;
+  animation: think-dot 1.1s ease-in-out infinite;
+}
+.board .thinking-card .dots i:nth-child(2) { animation-delay: 0.15s; }
+.board .thinking-card .dots i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes think-in {
+  from { opacity: 0; transform: translateY(0.35em); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .board .thinking-card .dots i, .board .thinking-card.swap .thinking-text { animation: none; }
+}
+/* 선생님이 생각하는 중: 문구 뒤에 점 세 개가 차례로 통통 */
+.subtitle > span.thinking {
+  color: #5b6275;
+}
+.subtitle > span.thinking .dots {
+  display: inline-flex;
+  gap: 0.18em;
+  margin-left: 0.3em;
+  vertical-align: middle;
+}
+.subtitle > span.thinking .dots i {
+  width: 0.32em;
+  height: 0.32em;
+  border-radius: 50%;
+  background: currentColor;
+  animation: think-dot 1.1s ease-in-out infinite;
+}
+.subtitle > span.thinking .dots i:nth-child(2) { animation-delay: 0.15s; }
+.subtitle > span.thinking .dots i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes think-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+  30% { transform: translateY(-0.35em); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .subtitle > span.thinking .dots i { animation: none; opacity: 0.8; }
+}
+.subtitle:has(> span:empty)::before {
+  visibility: hidden;
+}
+
+/* 질문창: 자막 아래 흰 둥근 상자 + 코랄 버튼 */
+.ask {
+  box-sizing: border-box;
+  flex: none;
+  height: var(--ask-h);
+  margin: var(--ask-gap) 0 calc(var(--ask) - var(--ask-h) - var(--ask-gap));
+  /* 왼쪽 마이크 알약 자리만큼 넓다 */
+  width: min(92vw, max(28rem, calc(var(--bw) * 0.86)), 48rem);
+  position: relative; /* 들은 말 말풍선·마이크 고르기 창의 기준 */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem;
+  background: var(--c-surface);
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 4px 4px 0 var(--shadow);
+}
+.ask:focus-within {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 3px;
+}
+.ask.concealed {
+  visibility: hidden; /* 자리는 지켜 보드가 움직이지 않게 */
+}
+.ask-input {
+  flex: 1;
+  min-width: 0;
+  margin-left: 0.3rem;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  font: 400 1.3rem/1 var(--font-input); /* 16px 이상: iOS가 확대하지 않는다 */
+  color: var(--c-on-surface);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+.ask-input::placeholder {
+  color: var(--c-placeholder); /* 흰 바탕에서 4.5:1 이상 */
+  opacity: 1;
+}
+.ask-btn {
+  flex: none;
+  height: 100%;
+  padding: 0 1.1rem;
+  font: 400 1.15rem/1 var(--font-control);
+  color: var(--c-on-primary);
+  background: var(--c-primary);
+  border: 2.5px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+  transition: transform 0.06s, box-shadow 0.06s;
+}
+.ask-btn:hover {
+  background: var(--c-primary-hover);
+}
+.ask-btn:active {
+  transform: translate(2px, 2px); /* 그림자가 줄며 눌리는 느낌 */
+  box-shadow: 0 0 0 var(--ink);
+}
+.ask-btn:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* 마이크 칩 + ▾: 질문창 왼쪽에 붙은 한 덩어리. 상태마다 아이콘 + 짧은 말 + 역할 색(C5, 2026-11-23):
+   말로 물어볼래?(처음 쓰는 기기, 주 행동 색) / 듣는 중(선택됨 색 + 소리 크기 막대) / 꺼짐·허락 필요(중립, 차분하게) / 연결 안 됨(경고 색). */
+.mic {
+  --mic-bg: var(--c-neutral);
+  --mic-fg: var(--c-on-neutral);
+  flex: none;
+  display: flex;
+  height: 100%;
+}
+.mic-pill,
+.mic-more {
+  height: 100%;
+  box-sizing: border-box;
+  color: var(--mic-fg);
+  background: var(--mic-bg);
+  border: 2.5px solid var(--ink);
+  cursor: pointer;
+  transition: transform 0.06s, box-shadow 0.06s, background-color 0.2s;
+}
+.mic-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0 0.75rem 0 0.6rem;
+  font: 400 1.05rem/1 var(--font-control);
+  white-space: nowrap;
+  border-radius: 12px 0 0 12px;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.mic-more {
+  width: 2rem;
+  padding: 0;
+  font: 400 0.95rem/1 var(--font-control);
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.mic-pill:hover,
+.mic-more:hover {
+  filter: brightness(1.04);
+}
+.mic-pill:active,
+.mic-more:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--ink);
+}
+.mic-pill:focus-visible,
+.mic-more:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+.mic-more[aria-expanded='true'] {
+  background: var(--c-selected);
+  color: var(--c-on-selected);
+}
+/* 아이콘: 마이크 하나에 상태 표시를 얹는다(빗금 = 꺼짐·허락 필요, 느낌표 = 연결 안 됨) */
+.mic-icon {
+  flex: none;
+  display: block;
+  width: 1.2em;
+  height: 1.2em;
+}
+.mic-icon .mi-slash,
+.mic-icon .mi-warn {
+  display: none;
+}
+.mic-pill[data-status='off'] .mi-slash,
+.mic-pill[data-status='denied'] .mi-slash,
+.mic-pill[data-status='error'] .mi-warn {
+  display: inline;
+}
+/* 듣는 중: 소리 크기에 따라 살짝 움직이는 막대 셋(main.ts가 이미 재는 마이크 소리 크기를 1초에 15번쯤 반영) */
+.mic-bars {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  height: 0.95em;
+}
+.mic-bars i {
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: currentColor;
+  transform: scaleY(0.3);
+  transition: transform 0.07s linear;
+  will-change: transform;
+}
+.mic-pill[data-status='listening'] .mic-bars {
+  display: inline-flex;
+}
+.mic:has(.mic-pill[data-status='ask']),
+.mic-pill[data-status='ask'] { --mic-bg: var(--c-primary); --mic-fg: var(--c-on-primary); }
+.mic:has(.mic-pill[data-status='listening']),
+.mic-pill[data-status='listening'] { --mic-bg: var(--c-selected); --mic-fg: var(--c-on-selected); }
+.mic:has(.mic-pill[data-status='denied']),
+.mic-pill[data-status='denied'] { --mic-fg: var(--c-on-neutral-muted); }
+.mic:has(.mic-pill[data-status='error']),
+.mic-pill[data-status='error'] { --mic-bg: var(--c-warn); --mic-fg: var(--c-on-warn); }
+/* 처음 쓰는 기기: ▾ 없이 버튼 하나("말로 물어볼래?"). 누르면 허락 창이 뜬다 */
+.mic:has(.mic-pill[data-status='ask']) .mic-more {
+  display: none;
+}
+.mic-pill[data-status='ask'] {
+  border-radius: 12px;
+}
+/* 여는 중(허락 창·장치 준비): 문구는 두고 흐린 중립색 */
+.mic:has(.mic-pill[data-pending]),
+.mic-pill[data-pending] {
+  --mic-bg: var(--c-neutral);
+  --mic-fg: var(--c-on-neutral);
+}
+.mic-pill[data-pending] {
+  /* 0.65면 글자 대비가 4.16:1이었다(QA 2026-11-23). 0.75: 흐린 느낌은 두고 5.6:1 */
+  opacity: 0.75;
+  cursor: progress;
+}
+/* 화면에는 안 보이고 화면 읽기 프로그램만 읽는 글 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+/* 마이크 고르기 창: 질문창 위에 뜨는 종이 쪽지 */
+.mic-picker {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 0.75rem);
+  z-index: 30;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 16rem;
+  max-width: min(26rem, 92vw);
+  padding: 0.55rem 0.9rem 0.85rem;
+  color: var(--c-on-neutral);
+  background: var(--c-neutral);
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--shadow);
+  transform: rotate(-0.6deg);
+}
+.mic-picker[hidden] {
+  display: none;
+}
+.mic-picker-title {
+  margin: 0 0 0.45rem;
+  font: 400 1.35rem/1.1 var(--font-display);
+}
+.mic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-height: 11rem;
+  overflow-y: auto;
+}
+.mic-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.55rem;
+  font: 400 1rem/1.2 var(--font-control);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.mic-option:hover {
+  background: rgba(255, 216, 77, 0.35);
+}
+.mic-option:has(:checked) {
+  color: var(--c-on-selected);
+  background: var(--c-selected);
+  border-color: var(--ink);
+}
+.mic-radio {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0;
+  accent-color: var(--ink);
+}
+.mic-option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mic-empty {
+  margin: 0.2rem 0;
+  font: 400 1rem/1.2 var(--font-control);
+  color: var(--c-on-neutral-muted);
+}
+.mic-level {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+  font: 400 0.95rem/1 var(--font-control);
+}
+.mic-level-label {
+  flex: none;
+}
+.mic-meter {
+  flex: 1;
+  height: 0.85rem;
+  overflow: hidden;
+  background: var(--c-surface);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+.mic-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5bc7a0, var(--yellow) 65%, var(--coral));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.06s linear;
+}
+
+/* 들은 말 말풍선: 질문창 바로 위, 꼬리가 마이크 알약을 가리킨다 */
+.heard {
+  position: absolute;
+  left: 0.5rem;
+  bottom: calc(100% + 0.55rem);
+  z-index: 20;
+  box-sizing: border-box;
+  display: flex;
+  align-items: baseline;
+  max-width: calc(100% - 1rem);
+  padding: 0.3rem 0.95rem 0.3rem 0.75rem;
+  font: 400 1.25rem/1.2 var(--font-display);
+  color: var(--c-on-neutral);
+  background: var(--c-neutral);
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 3px 3px 0 var(--shadow);
+  pointer-events: none;
+}
+.heard[hidden] {
+  display: none;
+}
+.heard::after {
+  content: '';
+  position: absolute;
+  left: 1.3rem;
+  bottom: -7.5px;
+  width: 11px;
+  height: 11px;
+  background: var(--c-neutral);
+  border-right: 2.5px solid var(--ink);
+  border-bottom: 2.5px solid var(--ink);
+  transform: rotate(45deg);
+}
+.heard-ear {
+  flex: none;
+  font: 1.15rem/1 system-ui, sans-serif;
+}
+.heard-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.heard.waiting .heard-text {
+  animation: blink 1s steps(2, jump-none) infinite;
+}
+@keyframes blink {
+  50% { opacity: 0.35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .heard.waiting .heard-text {
+    animation: none;
+  }
+  /* 움직임을 줄인 기기: 막대는 가만히(듣는 중임은 색·아이콘·글자로) */
+  .mic-bars i {
+    transform: scaleY(0.6) !important;
+    transition: none;
+  }
+}
+
+/* 상단 줄: 왼쪽 노란 로고 스티커, 오른쪽 민트 프로필 칩 */
+.topbar {
+  position: absolute;
+  top: 0.7rem;
+  /* 가로 휴대폰의 노치·펀치홀 자리를 피한다(viewport-fit=cover) */
+  left: max(1rem, env(safe-area-inset-left));
+  right: max(1rem, env(safe-area-inset-right));
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.topbar > * {
+  pointer-events: auto;
+}
+.logo {
+  /* 동글동글한 글자 로고(주아체): 상자 없이 글자마다 밝은 색 + 흰 테두리 + 살짝 통통 튀는 기울기 */
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.06em;
+  padding: 0.1rem 0.2rem;
+  font: 400 2.1rem/1 var(--font-display);
+  letter-spacing: 0.01em;
+  user-select: none;
+  pointer-events: none;
+}
+/* 헤더 로고는 누르면 프로필 바꾸기(버튼이지만 버튼처럼 보이지 않게) */
+.topbar .logo {
+  pointer-events: auto;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  margin: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.topbar .logo:focus-visible {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+.logo span {
+  display: inline-block;
+  -webkit-text-stroke: 0.14em #fff;
+  paint-order: stroke fill;
+  text-shadow: 0 0.09em 0 rgba(20, 23, 42, 0.55);
+}
+.logo.logo-big {
+  font-size: clamp(3rem, 7vw, 4.6rem);
+  margin: 0 0 0.6rem;
+}
+.logo span:nth-child(1) { color: #ff6b6b; transform: rotate(-6deg) translateY(0.02em); }
+.logo span:nth-child(2) { color: #ffb020; transform: rotate(4deg) translateY(-0.06em); }
+.logo span:nth-child(3) { color: #2ec4a0; transform: rotate(-3deg) translateY(0.03em); }
+.logo span:nth-child(4) { color: #4d8dff; transform: rotate(6deg) translateY(-0.04em); }
+/* 영어 로고(Teacherboard)는 글자가 많다: 네 색을 차례로 되풀이한다. */
+.logo span:nth-child(4n + 5) { color: #ff6b6b; transform: rotate(-6deg) translateY(0.02em); }
+.logo span:nth-child(4n + 6) { color: #ffb020; transform: rotate(4deg) translateY(-0.06em); }
+.logo span:nth-child(4n + 7) { color: #2ec4a0; transform: rotate(-3deg) translateY(0.03em); }
+.logo span:nth-child(4n + 8) { color: #4d8dff; transform: rotate(6deg) translateY(-0.04em); }
+:root.lang-en .logo { gap: 0; letter-spacing: 0; }
+
+/* 언어 바꾸기(한국어 ↔ English): 위쪽 띠 오른쪽 끝, 프로필 화면에서는 오른쪽 위 구석 */
+.lang-toggle {
+  pointer-events: auto;
+  font: 400 0.95rem/1 var(--font-control);
+  color: var(--c-on-neutral);
+  background: var(--c-neutral);
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.4rem 0.8rem;
+  box-shadow: 2px 2px 0 var(--shadow);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.lang-toggle::before {
+  content: '🌐 ';
+}
+.lang-toggle:active {
+  box-shadow: 1px 1px 0 var(--shadow);
+  transform: translate(1px, 1px);
+}
+.lang-toggle:focus-visible {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 3px;
+}
+.lang-overlay {
+  position: absolute;
+  top: max(1rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
+  z-index: 2;
+}
+/* 칠판 양옆 기둥: 왼쪽 설명 수준(쉽게·보통·깊게), 오른쪽 선생님(빠른·신중한). 기둥은 칠판과 같은 높이·같은 자리:
+   #app은 [말풍선 줄 --below][칠판 --bw × 689/1151][질문창 --ask]를 세로 가운데에 놓으므로 칠판 윗변은
+   50% + (--top − --safe-b + --below − --ask − 칠판 높이) / 2. 스위치는 가운데, 장식은 위·아래 끝(칠판 모서리 높이). */
+.side {
+  --board-h: calc(var(--bw) * 0.5986);
+  position: fixed;
+  top: calc(50% + (var(--top) - var(--safe-b) + var(--below) - var(--ask) - var(--board-h)) / 2);
+  height: var(--board-h);
+  z-index: 10;
+  box-sizing: border-box;
+  padding: 0.35rem 0;
+  width: var(--side);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.side > * {
+  pointer-events: auto;
+}
+/* 스위치는 기둥 가운데(장식이 숨어 혼자 남아도) */
+.side > .mode-switch {
+  margin-block: auto;
+}
+.side-left {
+  left: env(safe-area-inset-left);
+}
+.side-right {
+  right: env(safe-area-inset-right);
+}
+.side .mode-switch {
+  flex-direction: column;
+  width: calc(var(--side) - 1.6rem);
+  border-radius: 18px;
+  padding: 0.3rem;
+  gap: 0.25rem;
+}
+.side .mode-opt {
+  width: 100%;
+  padding: 0.55rem 0.4rem 0.5rem;
+  font-size: 1.05rem;
+  line-height: 1.15;
+  border-radius: 13px;
+  word-break: keep-all;
+}
+
+/* 설명 방식 스위치: 빠른 선생님 / 신중한 선생님. 밤하늘 위 반투명 알약, 고른 쪽만 밝게 */
+.mode-switch {
+  display: inline-flex;
+  padding: 0.22rem;
+  gap: 0.15rem;
+  background: var(--c-night-track);
+  border: 1px solid var(--c-night-line);
+  border-radius: 999px;
+}
+.mode-switch[hidden] {
+  display: none;
+}
+.mode-opt {
+  padding: 0.38rem 0.85rem 0.32rem;
+  font: 400 1.05rem/1 var(--font-control);
+  color: var(--c-on-night);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+/* 고른 것은 두 스위치 모두 같은 '선택됨' 색 하나(예전: 쉽게=빨강·빠른=노랑·신중한=민트 — 색에 뜻이 없었다) */
+.mode-opt[aria-checked='true'] {
+  color: var(--c-on-selected);
+  background: var(--c-selected);
+}
+.mode-opt:focus-visible {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 2px;
+}
+.corner-menu[hidden] {
+  display: none;
+}
+
+/* 프로필 고르기 / 시작: 보드 위를 같은 밤하늘로 덮는다(보드는 렌더링된 채로 둔다) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.overlay::before,
+.overlay::after {
+  position: absolute;
+  font: 400 2.4rem/1 var(--font-board);
+  pointer-events: none;
+}
+.overlay::before {
+  content: '✦'; /* 대체 텍스트 문법을 모르는 브라우저용 */
+  content: '✦' / ''; /* 장식: 화면 읽기 프로그램은 건너뛴다 */
+  left: 9%;
+  top: 22%;
+  color: var(--coral);
+}
+.overlay::after {
+  content: '★';
+  content: '★' / '';
+  right: 10%;
+  bottom: 20%;
+  color: var(--yellow);
+}
+.overlay[hidden],
+.overlay [hidden] {
+  display: none;
+}
+.overlay-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+}
+.overlay-title {
+  /* 글자 로고(.logo.logo-big)와 같은 모양. 여기서는 자리만 잡는다 */
+  justify-content: center;
+  transform: rotate(-2deg);
+}
+.overlay-ask {
+  margin: 0.3rem 0 1.3rem;
+  font: 400 clamp(1.45rem, 3.4vw, 2rem) / 1.2 var(--font-display);
+  color: var(--c-on-night);
+}
+.picker,
+.start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.choices {
+  display: flex;
+  gap: clamp(1.2rem, 4vw, 2.6rem);
+}
+
+/* 스티커 카드·버튼: 굵은 테두리 + 딱 떨어지는 그림자, 살짝 기울임, 올리면 흔들림, 누르면 눌림 */
+.sticker {
+  --tilt: 0deg;
+  font-family: var(--font-control);
+  font-weight: 400;
+  color: var(--c-on-neutral);
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--shadow);
+  cursor: pointer;
+  transform: rotate(var(--tilt));
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.sticker:hover {
+  animation: wiggle 0.5s ease-in-out;
+}
+.sticker:active {
+  animation: none;
+  transform: translate(3px, 3px) rotate(var(--tilt));
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+.sticker:focus-visible {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 4px;
+}
+@keyframes wiggle {
+  0%,
+  100% { transform: rotate(var(--tilt)); }
+  25% { transform: rotate(calc(var(--tilt) - 3deg)); }
+  50% { transform: rotate(calc(var(--tilt) + 2.5deg)); }
+  75% { transform: rotate(calc(var(--tilt) - 1.2deg)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sticker:hover {
+    animation: none;
+  }
+}
+.big-btn {
+  min-width: clamp(8rem, 20vw, 11rem);
+  padding: clamp(0.8rem, 2.2vw, 1.3rem) 1.4rem clamp(0.7rem, 2vw, 1.15rem);
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  line-height: 1.1;
+  border-radius: 22px;
+}
+.big-btn .emoji {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: clamp(2.4rem, 6vw, 3.4rem);
+  line-height: 1.1;
+}
+/* 프로필 카드는 둘 다 중립(얼굴 그림이 구분한다). 시작은 주 행동 */
+.sticker-kid {
+  --tilt: -3deg;
+  background: var(--c-neutral);
+}
+.sticker-adult {
+  --tilt: 2deg;
+  background: var(--c-neutral);
+}
+.start-btn {
+  --tilt: -2deg;
+  min-width: clamp(9rem, 22vw, 12rem);
+  color: var(--c-on-primary);
+  background: var(--c-primary);
+}
+.link-btn {
+  --tilt: 1.5deg;
+  margin-top: 1.4rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 1.05rem;
+  background: var(--c-surface);
+  border-width: 2.5px;
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--shadow);
+}
+.link-btn:active {
+  box-shadow: 1px 1px 0 var(--shadow);
+}
+
+/* 가족 비밀번호: 6칸 점 + 큰 스티커 숫자판 */
+.pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pin-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pin-head .overlay-ask {
+  margin-bottom: 0.8rem;
+}
+.pin-dots {
+  display: flex;
+  gap: 0.7rem;
+}
+.pin-dot {
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 3px solid #fff8e8;
+  border-radius: 50%;
+  box-shadow: 2px 2px 0 var(--shadow);
+  transition: transform 0.1s;
+}
+.pin-dot.on {
+  background: var(--c-selected);
+  border-color: var(--ink);
+  transform: scale(1.12);
+}
+.pin-dots.shake {
+  animation: pin-shake 0.45s ease-in-out;
+}
+@keyframes pin-shake {
+  0%,
+  100% { transform: translateX(0); }
+  20% { transform: translateX(-12px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-7px); }
+  80% { transform: translateX(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pin-dots.shake {
+    animation: none;
+  }
+}
+.pin-msg {
+  min-height: 1.6rem;
+  margin: 0.55rem 0 0.7rem;
+  font: 400 clamp(1.2rem, 2.6vw, 1.5rem) / 1.1 var(--font-display);
+  color: var(--c-selected);
+}
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, var(--key));
+  gap: clamp(0.6rem, 1.6vw, 0.95rem);
+  --key: clamp(3.6rem, 9vw, 4.6rem);
+}
+.pin-key {
+  width: var(--key);
+  height: var(--key);
+  padding: 0;
+  font-size: clamp(1.5rem, 3.6vw, 2rem);
+  line-height: 1;
+  border-radius: 18px;
+  background: var(--c-neutral);
+  touch-action: manipulation;
+}
+/* 숫자 키는 모두 중립(예전: 줄마다 노랑·민트·크림·빨강 — 뜻이 없었다). 살짝 다른 기울기만 남긴다 */
+.pin-key:nth-child(3n + 1) { --tilt: -2deg; }
+.pin-key:nth-child(3n + 2) { --tilt: 1.5deg; }
+.pin-key:nth-child(3n) { --tilt: -1deg; }
+.pin-key.pin-back {
+  --tilt: 2deg;
+}
+.pin-key:disabled {
+  cursor: default;
+  opacity: 0.55;
+  animation: none;
+}
+
+/* 키가 낮은 화면(휴대폰 가로): 자막·질문창 자리를 줄여 보드를 키운다 */
+@media (max-height: 500px) {
+  :root {
+    --top: 2.4rem;
+    --logo-room: 8.4rem;
+    --below: 4rem;
+    --side: 6rem;
+    --ask-gap: 0.7rem;
+    --sub-pad: 0.6rem;
+    --ask-h: 2.95rem;
+    --ask: 3.95rem;
+  }
+  .topbar {
+    top: 0.45rem;
+    left: max(0.6rem, env(safe-area-inset-left));
+    right: max(0.6rem, env(safe-area-inset-right));
+  }
+  .logo {
+    font-size: 1.6rem;
+  }
+  .side .mode-opt {
+    padding: 0.35rem 0.3rem 0.3rem;
+    font-size: 0.82rem;
+    border-radius: 10px;
+  }
+  .subtitle > span {
+    padding: 0 1rem;
+    border-width: 0.2rem 0 0.3rem;
+    font-size: 1rem;
+    line-height: 1.15;
+  }
+  .ask {
+    /* 마이크 칩(가장 긴 '말로 물어볼래?'도)과 입력칸이 함께 들어가게 화면 폭에 가깝게 */
+    width: min(calc(100vw - 2 * max(0.6rem, env(safe-area-inset-left))), 38rem);
+    padding: 0.25rem;
+  }
+  .mic-pill {
+    gap: 0.3rem;
+    padding: 0 0.55rem;
+    font-size: 0.9rem;
+  }
+  .mic-more {
+    width: 1.7rem;
+  }
+  .heard {
+    font-size: 1.1rem;
+  }
+  .mic-picker {
+    padding: 0.4rem 0.7rem 0.6rem;
+  }
+  .mic-picker-title {
+    font-size: 1.15rem;
+  }
+  .mic-list {
+    max-height: 7.5rem;
+  }
+  .ask-input {
+    font-size: 1.15rem;
+  }
+  .ask-btn {
+    font-size: 1rem;
+  }
+  .logo.logo-big {
+    font-size: 3rem;
+  }
+  .overlay-ask {
+    margin-bottom: 0.9rem;
+    font-size: 1.35rem;
+  }
+  /* PIN 화면: 제목을 빼고 안내·점은 왼쪽, 숫자판은 오른쪽 */
+  .overlay-card:has(.pin:not([hidden])) .overlay-title {
+    display: none;
+  }
+  .pin {
+    flex-direction: row;
+    gap: 2rem;
+  }
+  .pin-pad {
+    --key: min(3.4rem, calc((100dvh - 3rem) / 4 - 0.5rem));
+    gap: 0.5rem;
+  }
+  .pin-key {
+    border-radius: 14px;
+    box-shadow: 3px 3px 0 var(--shadow);
+  }
+}
+/* 넓적한 휴대폰 가로(16:9 이상): 보드 양옆이 비므로 로고·칩을 구석에 두고 그 줄 자리를 보드에 준다 */
+@media (max-height: 500px) and (min-aspect-ratio: 16/9) {
+  :root {
+    --top: 0.4rem;
+  }
+}
+/* 작은 화면에서는 장식을 숨긴다(키 낮은 가로 휴대폰은 칠판 옆 기둥이 스위치로 꽉 찬다) */
+@media (max-width: 600px), (max-height: 500px) {
+  .side > .doodle,
+  .overlay::before,
+  .overlay::after {
+    display: none;
+  }
+}
+
+/* 세로 화면(아이패드 세로·휴대폰 세로): 칠판은 화면 폭 가득(사진 비율 그대로), 스위치는 칠판 아래 한 줄(왼쪽 수준 / 오른쪽 선생님),
+   그 아래 질문창. 위아래로 남는 자리는 묶음 전체를 세로 가운데에 두어 나눈다. 가로 배치는 위 그대로.
+   말풍선 줄·칠판·스위치 줄·질문창을 2칸 격자로 쌓는다: 격자 폭 = 칠판 폭이라 스위치가 칠판 양 끝에 맞춰 선다. */
+@media (orientation: portrait) {
+  :root {
+    /* 칠판 양옆 여백(노치 쪽 safe-area 포함) */
+    --edge: max(0.75rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+    /* 스위치 줄(위 여백 포함) */
+    --switch-row: 4rem;
+    /* 로고 줄(휴대폰 세로만 따로 줄을 둔다) */
+    --logo-row: 0rem;
+  }
+  #app {
+    --bw: min(
+      calc(100vw - 2 * var(--edge)),
+      calc((100vh - var(--top) - var(--logo-row) - var(--below) - var(--switch-row) - var(--ask) - var(--safe-b)) / 0.6)
+    );
+    /* 격자 폭 = 화면 폭(양옆 여백만 뺀다). 보통은 폭이 칠판을 정해 칠판 폭과 같다(스위치가 칠판 양 끝에 선다).
+       키가 모자라 칠판이 좁아지면(자판이 화면을 줄이는 브라우저·작은 창) 칠판만 가운데에서 줄고 스위치 줄·질문창은 화면 폭을 그대로 쓴다
+       (QA 2026-11-23: 격자가 칠판 폭이라 390×500에서 '깊게'가 '빠른 선생님'에 덮이고 입력칸이 22px만 남았다). */
+    --gw: calc(100vw - 2 * var(--edge));
+    display: grid;
+    grid-template-columns: repeat(2, calc(var(--gw) / 2));
+    grid-template-areas:
+      'sub sub'
+      'board board'
+      'left right'
+      'ask ask';
+    align-content: center;
+    justify-content: center;
+  }
+  @supports (height: 100dvh) {
+    #app {
+      --bw: min(
+        calc(100vw - 2 * var(--edge)),
+        calc((100dvh - var(--top) - var(--logo-row) - var(--below) - var(--switch-row) - var(--ask) - var(--safe-b)) / 0.6)
+      );
+    }
+  }
+  .subtitle {
+    grid-area: sub;
+    width: 100%;
+  }
+  .subtitle > span {
+    font-size: clamp(1.05rem, 2.6vw, 1.4rem);
+  }
+  .board {
+    grid-area: board;
+    justify-self: center;
+  }
+  /* 로고는 가로처럼 말풍선 줄 왼쪽 빈자리에 앉는다(같은 칸에 겹쳐 놓는다) */
+  .topbar {
+    grid-area: sub;
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    align-self: start;
+    justify-self: start;
+    padding-top: 0.2rem;
+  }
+  .side {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin-top: calc(var(--switch-row) - 3rem);
+    align-self: start;
+  }
+  .side-left {
+    grid-area: left;
+    justify-self: start;
+  }
+  .side-right {
+    grid-area: right;
+    justify-self: end;
+  }
+  .side > .doodle {
+    display: none;
+  }
+  .side .mode-switch {
+    flex-direction: row;
+    width: auto;
+    border-radius: 999px;
+    gap: 0.15rem;
+    padding: 0.22rem;
+  }
+  .side .mode-opt {
+    width: auto;
+    padding: 0.6rem clamp(0.35rem, 1.8vw, 1.1rem) 0.55rem;
+    font-size: clamp(0.78rem, 3.6vw, 1.15rem);
+    line-height: 1;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .side .mode-opt br {
+    display: none;
+  }
+  .ask {
+    grid-area: ask;
+    justify-self: center;
+    width: min(var(--gw), max(28rem, calc(var(--bw) * 0.86)), 48rem);
+  }
+}
+
+/* 휴대폰 세로: 폭이 좁아 로고를 말풍선 줄 위 자기 줄로(말풍선이 화면 폭을 다 쓰게), 노치 아래에서 시작.
+   질문창은 두 줄: 위에 마이크 칩, 아래에 입력칸 + 물어보기(한 줄이면 입력칸이 몇 글자 폭밖에 안 남는다).
+   마이크 칩은 윗줄 폭을 다 채우고 글자는 가운데(C5: 예전엔 칩이 왼쪽에만 있어 오른쪽이 비었다). */
+@media (orientation: portrait) and (max-width: 600px) {
+  :root {
+    /* 위 여백 = 노치 아래(칠판 크기 계산에도 넣는다). 키 낮은 가로 휴대폰용 2.4rem(로고 줄)은 세로에 쓰지 않는다: 로고 줄은 --logo-row */
+    --top: max(0.5rem, env(safe-area-inset-top, 0px));
+    --logo-room: 0rem;
+    --logo-row: 2.6rem;
+    --below: 5.2rem;
+    --ask-h: 6rem;
+    --ask-gap: 0.9rem;
+    --ask: 7.6rem;
+    --switch-row: 3.6rem;
+  }
+  #app {
+    padding-top: var(--top);
+    grid-template-areas:
+      'logo logo'
+      'sub sub'
+      'board board'
+      'left right'
+      'ask ask';
+  }
+  .topbar {
+    grid-area: logo;
+    justify-self: center;
+    padding-top: 0;
+  }
+  .logo {
+    font-size: 1.8rem;
+  }
+  .ask {
+    width: var(--gw);
+    flex-wrap: wrap;
+    align-content: space-between;
+    row-gap: 0.3rem;
+    padding: 0.3rem;
+  }
+  .mic {
+    flex: 0 0 100%;
+    height: 2.3rem;
+  }
+  .mic-pill {
+    flex: 1;
+    font-size: 1rem;
+  }
+  .ask-input {
+    height: 2.5rem;
+    font-size: 1.2rem;
+  }
+  .ask-btn {
+    height: 2.5rem;
+  }
+}
+
+/* 영어 로고는 글자가 많아 헤더에서 조금 작게, 말풍선이 피할 자리도 조금 넓게(가로 화면) */
+:root.lang-en {
+  --logo-room: 12rem;
+}
+:root.lang-en .topbar .logo {
+  font-size: 1.55rem;
+}
+@media (max-height: 500px) {
+  :root.lang-en {
+    --logo-room: 9.6rem;
+  }
+}
+@media (orientation: portrait) {
+  /* 세로 화면의 스위치 줄은 한 줄: 영어는 "Quick teacher"가 길어 앞 낱말만(화면 읽기 이름은 그대로) */
+  :root.lang-en .mode-switch:not(.level-switch) .mode-opt > span:last-child {
+    display: none;
+  }
+}
+@media (orientation: portrait) and (max-width: 600px) {
+  /* 세로 휴대폰: 로고는 따로 한 줄이라 말풍선이 피할 자리가 없다 */
+  :root.lang-en {
+    --logo-room: 0rem;
+  }
+  .lang-topbar {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+    margin-left: 0.5rem;
+  }
+}

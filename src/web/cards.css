@@ -1,0 +1,126 @@
+/* 수업 흐름(2026-11-23 craft E1·A1·E2): 기다림 문구 자리, 칠판에 붙는 질문 카드, 이어 묻기 띠.
+   색·글꼴은 styles.css :root 토큰(--c-neutral, --c-on-neutral, --ink, --shadow, --font-control, --c-focus)을 쓰고,
+   토큰이 없을 때를 위해 지금 값을 함께 적어 둔다. 크기는 판서 면 기준(cqw·cqh)이라 화면이 달라도 칠판 안에서 비율이 같다. */
+
+.board .surface {
+  container-type: size; /* 판서 면 크기 기준 단위(cqw·cqh) */
+  --room: 0;
+}
+
+/* E1: 질문을 칠판에 먼저 쓰면 생각 중 문구는 그 아래(판서 면 절반 아래)로 내려간다. 질문은 보드 좌표 y≈250(35%)에 쓴다. */
+.board .thinking-card.with-question {
+  align-items: flex-start;
+  top: 50%;
+}
+
+/* E2: 이어 묻기 카드가 보이는 동안 판서를 위쪽 가운데로 살짝 줄여 아래 띠를 비운다(판서를 가리지 않게). */
+.board .surface svg.ink-layer,
+.board .surface svg.live-layer,
+.board .surface svg.active-layer,
+.board .surface svg.pen-layer {
+  transform-origin: 50% 0;
+  transform: scale(calc(1 - var(--room)));
+}
+.board .surface.room-anim svg {
+  transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* 카드 묶음: 판서 면 안에서 가로 한 줄. 빈 곳은 눌러도 칠판(아무것도 없음)이다. */
+.q-cards {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 4cqw;
+  pointer-events: none;
+}
+.q-cards[hidden] {
+  display: none;
+}
+.q-cards-list {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: clamp(6px, 1.8cqw, 18px);
+  width: 100%;
+}
+
+/* 질문 카드 한 장: 칠판에 붙인 메모지(크림색) + 앱 스티커 테두리. 누르는 영역은 아이 손가락 기준 44px 이상. */
+.q-card {
+  pointer-events: auto;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 31cqw;
+  min-height: 44px;
+  box-sizing: border-box;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.45em 0.7em;
+  font: 400 clamp(12px, 2.1cqw, 22px) / 1.22 var(--font-control, 'Jua', 'Apple SD Gothic Neo', system-ui, sans-serif);
+  color: var(--c-on-neutral, #2b2b3a);
+  background: var(--c-neutral, #f3efe4);
+  border: 2.5px solid var(--ink, #2b2b3a);
+  border-radius: 14px;
+  box-shadow: 3px 3px 0 var(--shadow, #14172a);
+  text-align: left;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  animation: q-card-in 0.42s cubic-bezier(0.2, 0.8, 0.3, 1.2) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+.q-card:active {
+  translate: 2px 2px; /* transform은 들어오는 애니메이션이 쥐고 있다 */
+  box-shadow: 1px 1px 0 var(--shadow, #14172a);
+}
+.q-card:focus-visible {
+  outline: 3px solid var(--c-focus, #ffffff);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--ink, #2b2b3a);
+}
+.q-card-emoji {
+  flex: none;
+  font-size: 1.45em;
+  line-height: 1;
+}
+.q-card-text {
+  min-width: 0;
+}
+/* 카드가 한 장씩 살짝 기울어 붙는다(메모지 느낌) */
+.q-card:nth-child(1) { rotate: -1.2deg; }
+.q-card:nth-child(2) { rotate: 0.8deg; }
+.q-card:nth-child(3) { rotate: -0.5deg; }
+@keyframes q-card-in {
+  from { opacity: 0; transform: translateY(0.6em) scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+
+/* E2 이어 묻기: 판서를 줄여 비운 아래 띠(--band, cards.ts가 정한다)에 한 줄. */
+.q-cards-next {
+  bottom: 0;
+  height: var(--band, 20%);
+  padding-top: 1.2cqh;
+  padding-bottom: 1.6cqh;
+}
+.q-cards-next .q-cards-list {
+  height: 100%;
+}
+
+/* 좁은 칠판(휴대폰): 이어 묻기 카드는 그림을 빼고 글을 넓게 */
+@container (max-width: 480px) {
+  .q-cards-next .q-card-emoji { display: none; }
+  .q-card { padding: 0.35em 0.5em; border-width: 2px; border-radius: 11px; box-shadow: 2px 2px 0 var(--shadow, #14172a); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .q-card { animation: none; }
+  .board .surface.room-anim svg { transition: none; }
+}
